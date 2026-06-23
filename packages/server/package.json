@@ -1,0 +1,23 @@
+{
+  "name": "@pokemon-champions/server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsup src/index.ts --format esm --clean",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@pokemon-champions/shared": "workspace:*",
+    "fastify": "^5",
+    "fastify-type-provider-zod": "^5",
+    "zod": "^4"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "tsup": "^8",
+    "tsx": "^4"
+  }
+}

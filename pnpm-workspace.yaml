@@ -1,2 +1,8 @@
 packages:
   - "packages/*"
+
+# Dependencies allowed to run install/build scripts. pnpm blocks these by
+# default as a supply-chain safeguard; esbuild needs it to download its native
+# binary (used by tsup for the server build).
+allowBuilds:
+  esbuild: true
