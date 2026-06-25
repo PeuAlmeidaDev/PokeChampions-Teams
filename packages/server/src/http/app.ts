@@ -4,7 +4,9 @@ import {
   validatorCompiler,
   type ZodTypeProvider,
 } from "fastify-type-provider-zod";
+import { TeamsResponseSchema } from "@pokemon-champions/shared";
 import { z } from "zod";
+import { sampleTeams } from "../domain/sample.js";
 
 /**
  * Builds the Fastify app fully configured but NOT listening. Keeping listen()
@@ -29,6 +31,23 @@ export function buildApp(): FastifyInstance {
       },
     },
     handler: async () => ({ status: "ok" as const }),
+  });
+
+  api.route({
+    method: "GET",
+    url: "/api/teams",
+    schema: {
+      response: {
+        200: TeamsResponseSchema,
+      },
+    },
+    // Thin handler: ask the domain for teams, stamp the clock at the border
+    // (fetchedAt is an effect, kept out of the pure domain), respond. The data
+    // source is the temporary sample seam — swap for real ingest later.
+    handler: async () => ({
+      fetchedAt: new Date().toISOString(),
+      teams: sampleTeams(),
+    }),
   });
 
   return app;
