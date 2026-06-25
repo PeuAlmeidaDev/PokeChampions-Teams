@@ -18,7 +18,7 @@
 - Graceful degradation: a bad species/sprite never crashes the ingest or the API response — log it and continue with a placeholder.
 - Tests stub the network at the boundary (inject a `fetch`-shaped dep), never our own code.
 - Conventional Commits in English, one commit per task. CI green (`pnpm lint && pnpm typecheck && pnpm test && pnpm build`) at every commit.
-- Run all commands from the repo root unless stated. Server tests run via the `server` workspace (`pnpm --filter @pokemon-champions/server test`).
+- Run all commands from the repo root. There is no per-package `test` script: tests run via root vitest (`pnpm test` for the whole suite, `pnpm exec vitest run <pattern>` to filter by file path). `typecheck`/`build` per package use `pnpm --filter @pokemon-champions/server <script>`.
 
 ## File Structure
 
@@ -131,7 +131,7 @@ describe("parseTeamsCsv", () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm --filter @pokemon-champions/server test -- csv`
+Run: `pnpm exec vitest run csv`
 Expected: FAIL — current parser returns only `{ id, name, pokepasteUrl }`.
 
 - [ ] **Step 3: Write the implementation**
@@ -221,7 +221,7 @@ export function parseTeamsCsv(csv: string): RawTeam[] {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm --filter @pokemon-champions/server test -- csv`
+Run: `pnpm exec vitest run csv`
 Expected: PASS (both cases).
 
 - [ ] **Step 5: Commit**
@@ -294,7 +294,7 @@ describe("spriteCandidates", () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm --filter @pokemon-champions/server test -- names`
+Run: `pnpm exec vitest run names`
 Expected: FAIL — `names.js` does not exist.
 
 - [ ] **Step 3: Write the implementation**
@@ -356,7 +356,7 @@ export function spriteCandidates(species: string): string[] {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm --filter @pokemon-champions/server test -- names`
+Run: `pnpm exec vitest run names`
 Expected: PASS.
 
 - [ ] **Step 5: Commit**
@@ -458,7 +458,7 @@ describe("assembleTeams", () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm --filter @pokemon-champions/server test -- assemble`
+Run: `pnpm exec vitest run assemble`
 Expected: FAIL — `assembleTeams` takes one arg and emits `pokemon: []`.
 
 - [ ] **Step 3: Write the implementation**
@@ -520,7 +520,7 @@ export function sampleTeams(): Team[] {
 
 - [ ] **Step 5: Run tests + typecheck to verify green**
 
-Run: `pnpm --filter @pokemon-champions/server test -- assemble && pnpm --filter @pokemon-champions/server typecheck`
+Run: `pnpm exec vitest run assemble && pnpm --filter @pokemon-champions/server typecheck`
 Expected: assemble PASS; typecheck clean (sample.ts compiles).
 
 - [ ] **Step 6: Commit**
@@ -597,7 +597,7 @@ describe("sprite cache", () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm --filter @pokemon-champions/server test -- cache/sprites`
+Run: `pnpm exec vitest run cache/sprites`
 Expected: FAIL — module does not exist.
 
 - [ ] **Step 3: Write the implementation**
@@ -655,7 +655,7 @@ export async function writeSpriteCache(
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm --filter @pokemon-champions/server test -- cache/sprites`
+Run: `pnpm exec vitest run cache/sprites`
 Expected: PASS (round-trip, missing, corrupt).
 
 - [ ] **Step 5: Commit**
@@ -721,7 +721,7 @@ describe("fetchSheetCsv", () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm --filter @pokemon-champions/server test -- ingest/sheet`
+Run: `pnpm exec vitest run ingest/sheet`
 Expected: FAIL — module does not exist.
 
 - [ ] **Step 3: Write the implementation**
@@ -760,7 +760,7 @@ export async function fetchSheetCsv(
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm --filter @pokemon-champions/server test -- ingest/sheet`
+Run: `pnpm exec vitest run ingest/sheet`
 Expected: PASS.
 
 - [ ] **Step 5: Commit**
@@ -879,7 +879,7 @@ describe("resolveSprites", () => {
 
 - [ ] **Step 3: Run test to verify it fails**
 
-Run: `pnpm --filter @pokemon-champions/server test -- ingest/sprites`
+Run: `pnpm exec vitest run ingest/sprites`
 Expected: FAIL — module does not exist.
 
 - [ ] **Step 4: Write the implementation**
@@ -979,7 +979,7 @@ export async function resolveSprites(
 
 - [ ] **Step 5: Run test to verify it passes**
 
-Run: `pnpm --filter @pokemon-champions/server test -- ingest/sprites`
+Run: `pnpm exec vitest run ingest/sprites`
 Expected: PASS (resolve, dedupe, 404-no-retry, omit+log, null-sprite miss).
 
 - [ ] **Step 6: Commit**
@@ -1116,7 +1116,7 @@ describe("createTeamsService", () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm --filter @pokemon-champions/server test -- ingest/orchestrator`
+Run: `pnpm exec vitest run ingest/orchestrator`
 Expected: FAIL — module does not exist.
 
 - [ ] **Step 3: Write the implementation**
@@ -1196,7 +1196,7 @@ export function createTeamsService(deps: TeamsServiceDeps): TeamsService {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm --filter @pokemon-champions/server test -- ingest/orchestrator`
+Run: `pnpm exec vitest run ingest/orchestrator`
 Expected: PASS (ingest, single-flight, memory hit, cache-skip+persist, retry-on-failure, canary).
 
 - [ ] **Step 5: Commit**
@@ -1287,7 +1287,7 @@ it("GET /api/teams returns 503 when ingest fails", async () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm --filter @pokemon-champions/server test -- http/app`
+Run: `pnpm exec vitest run http/app`
 Expected: FAIL — `buildApp` takes no args and imports `sampleTeams`.
 
 - [ ] **Step 3: Rewrite `app.ts`**
@@ -1376,7 +1376,7 @@ app.listen({ port, host }).catch((err: unknown) => {
 
 - [ ] **Step 5: Run tests + typecheck + build**
 
-Run: `pnpm --filter @pokemon-champions/server test -- http/app && pnpm --filter @pokemon-champions/server typecheck && pnpm --filter @pokemon-champions/server build`
+Run: `pnpm exec vitest run http/app && pnpm --filter @pokemon-champions/server typecheck && pnpm --filter @pokemon-champions/server build`
 Expected: app tests PASS (200, 503, health); typecheck + build clean.
 
 - [ ] **Step 6: Commit**
@@ -1459,7 +1459,7 @@ Expected: no `sample` references; all four green.
 Set the real values (the live sheet CSV-export URL and, if not pokeapi.co, the
 pinned instance) and inspect the sheet header row once to confirm the column
 header constants in `csv.ts` (`HEADERS` + `SPECIES_HEADER`). If a header differs,
-fix the constant and re-run `pnpm --filter @pokemon-champions/server test -- csv`.
+fix the constant and re-run `pnpm exec vitest run csv`.
 
 ```bash
 # PowerShell, from repo root:
