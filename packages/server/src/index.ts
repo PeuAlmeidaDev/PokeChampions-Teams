@@ -1,10 +1,12 @@
 import { buildApp } from "./http/app.js";
+import { sampleTeams } from "./domain/sample.js";
 
-// Entry point = the edge: this is the only place that reads the environment.
 const port = Number(process.env.PORT ?? 3000);
 const host = process.env.HOST ?? "0.0.0.0";
 
-const app = buildApp();
+const app = buildApp({
+  getTeams: async () => ({ fetchedAt: new Date().toISOString(), teams: sampleTeams() }),
+});
 
 app.listen({ port, host }).catch((err: unknown) => {
   app.log.error(err);
