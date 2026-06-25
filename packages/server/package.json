@@ -13,6 +13,7 @@
     "@pokemon-champions/shared": "workspace:*",
     "fastify": "^5",
     "fastify-type-provider-zod": "^5",
+    "p-limit": "^7.3.0",
     "zod": "^4"
   },
   "devDependencies": {
