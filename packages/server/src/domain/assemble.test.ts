@@ -8,7 +8,16 @@ describe("assembleTeams", () => {
     // owner and tournament metadata arrive in later slices: until then the
     // contract is honoured with explicit null / empty, never invented data.
     const raw: RawTeam[] = [
-      { id: "MB1", name: "Sun Offense", pokepasteUrl: "https://pokepast.es/abc" },
+      {
+        id: "MB1",
+        name: "Sun Offense",
+        ownerName: null,
+        ownerHandle: null,
+        tournament: null,
+        rank: null,
+        pokepasteUrl: "https://pokepast.es/abc",
+        species: [],
+      },
     ];
 
     const teams = assembleTeams(raw);
