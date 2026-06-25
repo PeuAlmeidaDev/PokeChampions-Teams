@@ -20,5 +20,5 @@ const SAMPLE_CSV = [
 ].join("\n");
 
 export function sampleTeams(): Team[] {
-  return assembleTeams(parseTeamsCsv(SAMPLE_CSV));
+  return assembleTeams(parseTeamsCsv(SAMPLE_CSV), new Map());
 }
