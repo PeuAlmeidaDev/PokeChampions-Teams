@@ -22,7 +22,22 @@ describe("App", () => {
 
     expect(screen.getByText(/carregando/i)).toBeTruthy();
     expect(await screen.findByText("Sun Offense")).toBeTruthy();
-    expect(screen.getByText(/1 times? campe/i)).toBeTruthy();
+    // Singular count: one team reads "1 time campeão", not "1 times campeões".
+    expect(screen.getByText("1 time campeão")).toBeTruthy();
+  });
+
+  it("pluralizes the count for more than one team", async () => {
+    const body = makeTeamsResponse({
+      teams: [makeTeam({ id: "MB1", name: "A" }), makeTeam({ id: "MB2", name: "B" })],
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: true, json: async () => body })),
+    );
+
+    render(<App />);
+
+    expect(await screen.findByText("2 times campeões")).toBeTruthy();
   });
 
   it("shows an error state with a retry that refetches", async () => {

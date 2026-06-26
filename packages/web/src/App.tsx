@@ -57,7 +57,11 @@ export function App(): JSX.Element {
 
       {status === "ready" && (
         <>
-          <p className="mb-4 text-sm text-slate-600">{teams.length} times campeões</p>
+          <p className="mb-4 text-sm text-slate-600">
+            {teams.length === 1
+              ? "1 time campeão"
+              : `${teams.length} times campeões`}
+          </p>
           <TeamGrid teams={teams} />
         </>
       )}
