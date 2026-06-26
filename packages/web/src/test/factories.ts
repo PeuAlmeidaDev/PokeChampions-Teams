@@ -1,4 +1,4 @@
-import type { Team, TeamsResponse } from "@pokemon-champions/shared";
+import type { PokemonSet, Team, TeamsResponse } from "@pokemon-champions/shared";
 
 /**
  * Test-only factories for the shared contract. One place to build a minimal
@@ -28,6 +28,15 @@ export function makeTeamsResponse(
   return {
     fetchedAt: "2026-06-25T01:16:53.100Z",
     teams: [makeTeam()],
+    ...overrides,
+  };
+}
+
+export function makePokemon(overrides: Partial<PokemonSet> = {}): PokemonSet {
+  return {
+    species: "Pikachu",
+    spriteUrl: "https://img/pikachu.png",
+    dexId: 25,
     ...overrides,
   };
 }
