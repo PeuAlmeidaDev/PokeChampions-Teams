@@ -53,4 +53,26 @@ describe("parseTeamsCsv (live sheet shape)", () => {
     expect(teams[0]?.name).toBe("line one\nline two");
     expect(teams[0]?.species).toHaveLength(6);
   });
+
+  it("sets optional fields to null when their column is absent from the sheet header", () => {
+    // Regression: opt() must return null (not undefined/empty) for absent columns.
+    // Header deliberately omits "Owner" (ownerHandle) and "Rank" — they collapse to null.
+    const csv = [
+      "banner1,,,",
+      "banner2,,,",
+      // No "Owner" or "Rank" column
+      "Team ID,Team Description,Full Name,Pokepaste,Pokemon Text for Copypasta,,,,,",
+      "MB1,Arceus,Ash,https://pokepast.es/x,Pikachu,Raichu,Gengar,Mewtwo,Dragonite,Charizard",
+    ].join("\n");
+
+    const teams = parseTeamsCsv(csv);
+    expect(teams).toHaveLength(1);
+    // Absent columns become null
+    expect(teams[0]?.ownerHandle).toBeNull();
+    expect(teams[0]?.rank).toBeNull();
+    // Present fields are still populated
+    expect(teams[0]?.id).toBe("MB1");
+    expect(teams[0]?.ownerName).toBe("Ash");
+    expect(teams[0]?.species).toHaveLength(6);
+  });
 });
