@@ -4,15 +4,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch --env-file-if-exists=.env src/index.ts",
     "build": "tsup src/index.ts --format esm --clean",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@pokemon-champions/shared": "workspace:*",
+    "csv-parse": "^7.0.0",
     "fastify": "^5",
     "fastify-type-provider-zod": "^5",
+    "p-limit": "^7.3.0",
     "zod": "^4"
   },
   "devDependencies": {

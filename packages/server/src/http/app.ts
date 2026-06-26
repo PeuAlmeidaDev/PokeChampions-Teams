@@ -4,19 +4,22 @@ import {
   validatorCompiler,
   type ZodTypeProvider,
 } from "fastify-type-provider-zod";
-import { TeamsResponseSchema } from "@pokemon-champions/shared";
+import { TeamsResponseSchema, type TeamsResponse } from "@pokemon-champions/shared";
 import { z } from "zod";
-import { sampleTeams } from "../domain/sample.js";
+
+/** Everything the HTTP layer needs from the rest of the app, injected so tests
+ * can drive routes without touching the network. */
+export interface AppDeps {
+  getTeams: () => Promise<TeamsResponse>;
+}
 
 /**
  * Builds the Fastify app fully configured but NOT listening. Keeping listen()
  * out of here lets tests drive routes via `app.inject(...)` without a socket.
  */
-export function buildApp(): FastifyInstance {
+export function buildApp(deps: AppDeps): FastifyInstance {
   const app = Fastify({ logger: true });
 
-  // zod is the source of truth at the HTTP border: validates requests and
-  // serializes responses against the same schemas the rest of the app uses.
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
 
@@ -25,11 +28,7 @@ export function buildApp(): FastifyInstance {
   api.route({
     method: "GET",
     url: "/api/health",
-    schema: {
-      response: {
-        200: z.object({ status: z.literal("ok") }),
-      },
-    },
+    schema: { response: { 200: z.object({ status: z.literal("ok") }) } },
     handler: async () => ({ status: "ok" as const }),
   });
 
@@ -39,15 +38,19 @@ export function buildApp(): FastifyInstance {
     schema: {
       response: {
         200: TeamsResponseSchema,
+        503: z.object({ error: z.string() }),
       },
     },
-    // Thin handler: ask the domain for teams, stamp the clock at the border
-    // (fetchedAt is an effect, kept out of the pure domain), respond. The data
-    // source is the temporary sample seam — swap for real ingest later.
-    handler: async () => ({
-      fetchedAt: new Date().toISOString(),
-      teams: sampleTeams(),
-    }),
+    // Thin handler: ask the ingest service for teams; turn a root-source failure
+    // into 503 so the client can retry (the service self-recovers next call).
+    handler: async (_req, reply) => {
+      try {
+        return await deps.getTeams();
+      } catch (err) {
+        app.log.error(err);
+        return reply.code(503).send({ error: "teams temporarily unavailable" });
+      }
+    },
   });
 
   return app;

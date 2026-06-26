@@ -1,36 +1,55 @@
 import type { FastifyInstance } from "fastify";
-import { afterAll, beforeAll, expect, it } from "vitest";
-import { TeamsResponseSchema } from "@pokemon-champions/shared";
+import { afterEach, expect, it, vi } from "vitest";
+import { TeamsResponseSchema, type TeamsResponse } from "@pokemon-champions/shared";
 import { buildApp } from "./app.js";
 
 let app: FastifyInstance;
-
-beforeAll(async () => {
-  app = buildApp();
-  await app.ready();
+afterEach(async () => {
+  await app?.close();
 });
 
-afterAll(async () => {
-  await app.close();
-});
+const sample: TeamsResponse = {
+  fetchedAt: "2026-06-25T00:00:00.000Z",
+  teams: [
+    {
+      id: "MB1",
+      name: "Sun",
+      ownerName: null,
+      ownerHandle: null,
+      tournament: null,
+      rank: null,
+      pokepasteUrl: "https://pokepast.es/a",
+      pokemon: [],
+    },
+  ],
+};
 
 it("GET /api/health returns ok", async () => {
+  app = buildApp({ getTeams: vi.fn().mockResolvedValue(sample) });
+  await app.ready();
+
   const res = await app.inject({ method: "GET", url: "/api/health" });
 
   expect(res.statusCode).toBe(200);
   expect(res.json()).toEqual({ status: "ok" });
 });
 
-it("GET /api/teams returns the sample teams stamped with fetchedAt", async () => {
+it("GET /api/teams returns what the ingest service produced", async () => {
+  app = buildApp({ getTeams: vi.fn().mockResolvedValue(sample) });
+  await app.ready();
+
   const res = await app.inject({ method: "GET", url: "/api/teams" });
 
   expect(res.statusCode).toBe(200);
-  // Re-validate the wire shape against the shared contract: the route must
-  // serialize exactly what `web` will re-parse on the other side.
   const body = TeamsResponseSchema.parse(res.json());
-  expect(body.teams).toHaveLength(3);
   expect(body.teams[0]?.id).toBe("MB1");
-  // fetchedAt is the clock, stamped at the HTTP border (not in the pure
-  // domain). We can't assert an exact value, only that it's a real instant.
-  expect(Number.isNaN(Date.parse(body.fetchedAt))).toBe(false);
+});
+
+it("GET /api/teams returns 503 when ingest fails", async () => {
+  app = buildApp({ getTeams: vi.fn().mockRejectedValue(new Error("sheet down")) });
+  await app.ready();
+
+  const res = await app.inject({ method: "GET", url: "/api/teams" });
+
+  expect(res.statusCode).toBe(503);
 });
