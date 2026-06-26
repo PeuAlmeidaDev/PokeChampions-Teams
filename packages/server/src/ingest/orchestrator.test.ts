@@ -2,8 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 import type { ResolvedSprite } from "../domain/assemble.js";
 import { createTeamsService, type TeamsServiceDeps } from "./orchestrator.js";
 
+// Header names must match the live sheet (new csv.ts: species under
+// "Pokemon Text for Copypasta", tournament as "Tournament / Event", rank as "Rank").
 const CSV = [
-  "Team ID,Team Description,Pokepaste,Pokemon 1,Pokemon 2",
+  "Team ID,Team Description,Pokepaste,Pokemon Text for Copypasta,",
   "MB1,Sun,https://pokepast.es/a,Miraidon,Flutter Mane",
 ].join("\n");
 

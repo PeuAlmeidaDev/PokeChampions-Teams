@@ -1,52 +1,56 @@
 import { describe, expect, it } from "vitest";
 import { parseTeamsCsv } from "./csv.js";
 
-describe("parseTeamsCsv", () => {
-  it("locates columns by header, not position, and extracts the six species", () => {
-    // Header order is deliberately shuffled: the real sheet moves columns around.
+describe("parseTeamsCsv (live sheet shape)", () => {
+  it("skips banners, reads metadata and the 6 species from the copypasta block", () => {
+    // Fixture mirrors the real sheet structure: 2 banner rows, then the header,
+    // then data. Columns are in the same relative order as the live sheet
+    // (Team ID=0, Description=1, Full Name=2, Pokepaste=3, Tournament / Event=4,
+    //  Rank=5, Owner=6, Pokemon Text for Copypasta=7, blank×5=8..12).
     const csv = [
-      "Pokemon 1,Team Description,Owner,Pokemon 2,Team ID,Full Name,Pokepaste,Pokemon 3,Tournament,Pokemon 4,Placement,Pokemon 5,Pokemon 6",
-      "Miraidon,Sun Offense,@sunbro,Flutter Mane,MB1,Sun Bro,https://pokepast.es/abc,Iron Hands,Worlds 2026,Landorus-Therian,Champion,Amoonguss,Rillaboom",
+      "VGCPastes Repository,,,,,,,,,,,,,", // banner 1
+      "Click here for updates,,,,,,,,,,,,,", // banner 2
+      "Team ID,Team Description,Full Name,Pokepaste,Tournament / Event,Rank,Owner,Pokemon Text for Copypasta,,,,,",
+      // Team Description contains a comma → MUST be quoted for RFC4180
+      'MB259,"Ruler of Origin, 2nd Place",Kaito Arii,https://pokepast.es/abc,Ruler of Origin Tour,2nd,ub_slow,Metagross-Mega,Charizard,Toxapex,Grimmsnarl,Garchomp,Hydreigon',
+      "", // trailing blank row → must be dropped
     ].join("\n");
 
     expect(parseTeamsCsv(csv)).toEqual([
       {
-        id: "MB1",
-        name: "Sun Offense",
-        ownerName: "Sun Bro",
-        ownerHandle: "@sunbro",
-        tournament: "Worlds 2026",
-        rank: "Champion",
+        id: "MB259",
+        name: "Ruler of Origin, 2nd Place",
+        ownerName: "Kaito Arii",
+        ownerHandle: "ub_slow",
+        tournament: "Ruler of Origin Tour",
+        rank: "2nd",
         pokepasteUrl: "https://pokepast.es/abc",
         species: [
-          "Miraidon",
-          "Flutter Mane",
-          "Iron Hands",
-          "Landorus-Therian",
-          "Amoonguss",
-          "Rillaboom",
+          "Metagross-Mega",
+          "Charizard",
+          "Toxapex",
+          "Grimmsnarl",
+          "Garchomp",
+          "Hydreigon",
         ],
       },
     ]);
   });
 
-  it("tolerates a partial row: missing optional fields become null, blank species are dropped", () => {
+  it("handles a quoted field containing an embedded newline", () => {
+    // The "Replica Code" cell in the real sheet spans physical lines —
+    // csv-parse must re-assemble the logical record across line boundaries.
     const csv = [
-      "Team ID,Team Description,Pokepaste,Pokemon 1,Pokemon 2",
-      "MB2,Trick Room,https://pokepast.es/tr,Indeedee-F,",
+      "banner,,,,,,,,,,,,,",
+      "banner2,,,,,,,,,,,,,",
+      "Team ID,Team Description,Full Name,Pokepaste,Tournament / Event,Rank,Owner,Pokemon Text for Copypasta,,,,,",
+      // \n inside the double-quoted Team Description field is an embedded newline
+      'MB1,"line one\nline two",Ana,https://pokepast.es/x,Cup,1st,ana_h,Pikachu,Mimikyu,Incineroar,Rillaboom,Amoonguss,Urshifu',
     ].join("\n");
 
-    expect(parseTeamsCsv(csv)).toEqual([
-      {
-        id: "MB2",
-        name: "Trick Room",
-        ownerName: null,
-        ownerHandle: null,
-        tournament: null,
-        rank: null,
-        pokepasteUrl: "https://pokepast.es/tr",
-        species: ["Indeedee-F"],
-      },
-    ]);
+    const teams = parseTeamsCsv(csv);
+    expect(teams).toHaveLength(1);
+    expect(teams[0]?.name).toBe("line one\nline two");
+    expect(teams[0]?.species).toHaveLength(6);
   });
 });
