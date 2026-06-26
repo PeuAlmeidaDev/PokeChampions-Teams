@@ -18,6 +18,9 @@ build/
 # test / coverage
 coverage/
 
+# brainstorming visual-companion mockups (transient, per-session)
+.superpowers/
+
 # misc
 .DS_Store
 *.log
