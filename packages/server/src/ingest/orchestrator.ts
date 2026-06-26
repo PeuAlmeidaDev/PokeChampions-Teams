@@ -40,6 +40,12 @@ export function createTeamsService(deps: TeamsServiceDeps): TeamsService {
       );
     }
 
+    if (raw.length > 0 && raw.every((t) => t.species.length === 0)) {
+      logger.warn(
+        "[ingest] every team parsed with zero species — the species columns may have moved (check the 'Pokemon Text for Copypasta' header)",
+      );
+    }
+
     const wanted = new Set(raw.flatMap((t) => t.species));
     const cache = await deps.readSpriteCache();
     const missing = [...wanted].filter((s) => !cache.has(s));

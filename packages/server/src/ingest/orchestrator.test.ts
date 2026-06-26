@@ -86,5 +86,27 @@ describe("createTeamsService", () => {
     await service.getTeams(); // 1 team, well under the ~200 canary
 
     expect(logger.warn).toHaveBeenCalledWith(expect.stringMatching(/team count/i));
+    // Normal fixture HAS species — species canary must NOT fire
+    expect(logger.warn).not.toHaveBeenCalledWith(expect.stringMatching(/species/i));
+  });
+
+  it("warns when every team parses with zero species (species column absent)", async () => {
+    // CSV has a valid "Team ID" header but NO "Pokemon Text for Copypasta" column,
+    // so parseTeamsCsv returns teams with species: [].
+    const NO_SPECIES_CSV = [
+      "Team ID,Team Description,Pokepaste",
+      "MB1,Sun,https://pokepast.es/a",
+    ].join("\n");
+    const logger = { warn: vi.fn() };
+    const service = createTeamsService(
+      deps({
+        fetchSheetCsv: vi.fn().mockResolvedValue(NO_SPECIES_CSV),
+        logger,
+      }),
+    );
+
+    await service.getTeams();
+
+    expect(logger.warn).toHaveBeenCalledWith(expect.stringMatching(/species/i));
   });
 });
