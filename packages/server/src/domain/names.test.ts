@@ -8,6 +8,13 @@ describe("spriteCandidates", () => {
     expect(spriteCandidates("Palafin-Hero")[0]).toBe("palafin-hero");
   });
 
+  it("maps Maushold-Four to its PokeAPI form (404-log finding from the live ingest)", () => {
+    // The naive slug "maushold-four" and the "maushold" fallback both 404 on
+    // PokeAPI; only "maushold-family-of-four" resolves. Caught by the sprite
+    // miss log when exercising the real sheet.
+    expect(spriteCandidates("Maushold-Four")[0]).toBe("maushold-family-of-four");
+  });
+
   it("naive-slugs an ordinary name (lowercase, hyphen-separated)", () => {
     expect(spriteCandidates("Landorus-Therian")).toContain("landorus-therian");
     expect(spriteCandidates("Flutter Mane")).toContain("flutter-mane");

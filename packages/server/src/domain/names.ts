@@ -16,6 +16,7 @@ const OVERRIDES: Record<string, string> = {
   "Basculegion-F": "basculegion-female",
   "Indeedee-F": "indeedee-female",
   "Maushold": "maushold-family-of-four",
+  "Maushold-Four": "maushold-family-of-four", // 404-log finding from live ingest
   "Mimikyu": "mimikyu-disguised",
   "Palafin": "palafin-zero",
   "Palafin-Hero": "palafin-hero",
