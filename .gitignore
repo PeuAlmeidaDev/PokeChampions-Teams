@@ -6,8 +6,9 @@ dist/
 build/
 *.tsbuildinfo
 
-# runtime data cache (L2 on-disk ingest cache)
-data/cache/
+# runtime data cache (L2 on-disk ingest cache) — any package (anchored patterns
+# with a slash only match the repo root, so glob from any depth)
+**/data/cache/
 
 # env / secrets
 .env
