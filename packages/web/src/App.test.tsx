@@ -56,4 +56,43 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: /tentar de novo/i }));
     expect(await screen.findByText("Recovered")).toBeTruthy();
   });
+
+  it("abre o modal e carrega o detalhe ao clicar num time", async () => {
+    const detail = {
+      id: "MB1",
+      pokemon: [
+        { species: "Incineroar", spriteUrl: "x", item: "Assault Vest", ability: "Intimidate", nature: "Careful", teraType: "Grass", evs: { hp: 252 }, ivs: {}, moves: ["Fake Out"] },
+      ],
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((url: string) =>
+        url.endsWith("/detail")
+          ? Promise.resolve({ ok: true, json: async () => detail })
+          : Promise.resolve({ ok: true, json: async () => makeTeamsResponse({ teams: [makeTeam({ id: "MB1" })] }) }),
+      ),
+    );
+
+    render(<App />);
+    const card = await screen.findByRole("button", { name: /sun offense/i });
+    fireEvent.click(card);
+    expect(await screen.findByText("Incineroar")).toBeTruthy();
+  });
+
+  it("shows error state in detail modal with retry button", async () => {
+    const fetchMock = vi.fn((url: string) => {
+      if (url.includes("/detail")) {
+        return Promise.resolve({ ok: false, status: 503, json: async () => ({}) });
+      }
+      return Promise.resolve({ ok: true, json: async () => makeTeamsResponse({ teams: [makeTeam({ id: "MB1", name: "Sun Offense" })] }) });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<App />);
+    const card = await screen.findByRole("button", { name: /sun offense/i });
+    fireEvent.click(card);
+
+    expect(await screen.findByText(/não foi possível/i)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /tentar de novo/i })).toBeTruthy();
+  });
 });

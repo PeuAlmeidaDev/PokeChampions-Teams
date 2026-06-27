@@ -9,6 +9,8 @@
 import {
   TeamsResponseSchema,
   type TeamsResponse,
+  TeamDetailSchema,
+  type TeamDetail,
 } from "@pokemon-champions/shared";
 
 export async function fetchTeams(): Promise<TeamsResponse> {
@@ -18,4 +20,13 @@ export async function fetchTeams(): Promise<TeamsResponse> {
   }
   const json: unknown = await res.json();
   return TeamsResponseSchema.parse(json);
+}
+
+export async function fetchTeamDetail(id: string): Promise<TeamDetail> {
+  const res = await fetch(`/api/teams/${encodeURIComponent(id)}/detail`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch team detail: HTTP ${res.status}`);
+  }
+  const json: unknown = await res.json();
+  return TeamDetailSchema.parse(json);
 }

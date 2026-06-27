@@ -13,6 +13,7 @@ describe("TeamGrid", () => {
           makeTeam({ id: "MB1", name: "Sun Offense" }),
           makeTeam({ id: "MB2", name: "Trick Room Hard" }),
         ]}
+        onOpenDetail={() => {}}
       />,
     );
 
@@ -21,7 +22,7 @@ describe("TeamGrid", () => {
   });
 
   it("shows an empty state when there are no teams", () => {
-    render(<TeamGrid teams={[]} />);
+    render(<TeamGrid teams={[]} onOpenDetail={() => {}} />);
 
     expect(screen.getByText(/nenhum time/i)).toBeTruthy();
   });

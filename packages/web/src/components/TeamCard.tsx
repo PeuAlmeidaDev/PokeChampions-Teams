@@ -6,15 +6,32 @@ import { PokemonSprite } from "./PokemonSprite.js";
  * One champion team as a card: metadata header + a 3-column sprite grid + a link
  * to the source paste. Presentational only. Optional fields (rank, tournament,
  * owner) are omitted when null so the UI never shows "null".
+ *
+ * An absolute-positioned <button> captures card clicks and calls onOpenDetail;
+ * header/sprite areas are pointer-events-none (click falls through to the button);
+ * the paste <a> sits above (z-10) with stopPropagation so it stays independently
+ * clickable without triggering the modal.
  */
-export function TeamCard({ team }: { team: Team }): JSX.Element {
+export function TeamCard({
+  team,
+  onOpenDetail,
+}: {
+  team: Team;
+  onOpenDetail: (id: string) => void;
+}): JSX.Element {
   const owner = [team.ownerName, team.ownerHandle ? `@${team.ownerHandle}` : null]
     .filter(Boolean)
     .join(" · ");
 
   return (
-    <article className="flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md">
-      <header className="flex flex-col gap-1">
+    <article className="relative flex h-full flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md">
+      <button
+        type="button"
+        onClick={() => onOpenDetail(team.id)}
+        className="absolute inset-0 z-0 rounded-lg focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
+        aria-label={team.name}
+      />
+      <header className="pointer-events-none relative z-10 flex flex-col gap-1">
         <div className="flex items-start justify-between gap-2">
           <h2 className="font-semibold text-slate-900">{team.name}</h2>
           {team.rank && (
@@ -29,7 +46,7 @@ export function TeamCard({ team }: { team: Team }): JSX.Element {
         {owner && <p className="text-sm text-slate-500">{owner}</p>}
       </header>
 
-      <ul className="grid grid-cols-3 gap-2">
+      <ul className="pointer-events-none relative z-10 grid grid-cols-3 gap-2">
         {team.pokemon.map((p, i) => (
           <li key={`${p.species}-${i}`} className="flex justify-center">
             <PokemonSprite species={p.species} spriteUrl={p.spriteUrl} />
@@ -41,7 +58,8 @@ export function TeamCard({ team }: { team: Team }): JSX.Element {
         href={team.pokepasteUrl}
         target="_blank"
         rel="noreferrer"
-        className="mt-auto text-sm text-sky-600 hover:underline"
+        onClick={(e) => e.stopPropagation()}
+        className="relative z-10 mt-auto text-sm text-sky-600 hover:underline"
       >
         ver paste →
       </a>

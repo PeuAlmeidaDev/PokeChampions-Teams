@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@pkmn/sets": "^5.2.0",
     "@pokemon-champions/shared": "workspace:*",
     "csv-parse": "^7.0.0",
     "fastify": "^5",

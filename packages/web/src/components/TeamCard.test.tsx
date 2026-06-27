@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { TeamCard } from "./TeamCard.js";
 import { makePokemon, makeTeam } from "../test/factories.js";
 
@@ -20,7 +20,7 @@ describe("TeamCard", () => {
       ],
     });
 
-    render(<TeamCard team={team} />);
+    render(<TeamCard team={team} onOpenDetail={() => {}} />);
 
     expect(screen.getByText("Sun Offense")).toBeTruthy();
     expect(screen.getByText("2nd")).toBeTruthy();
@@ -43,9 +43,23 @@ describe("TeamCard", () => {
       pokemon: [],
     });
 
-    render(<TeamCard team={team} />);
+    render(<TeamCard team={team} onOpenDetail={() => {}} />);
 
     expect(screen.getByText("Anon")).toBeTruthy();
     expect(screen.queryByText(/null/i)).toBeNull();
+  });
+
+  it("chama onOpenDetail com o id ao clicar no card", () => {
+    const onOpenDetail = vi.fn();
+    render(<TeamCard team={makeTeam({ id: "MB7" })} onOpenDetail={onOpenDetail} />);
+    fireEvent.click(screen.getByRole("button", { name: /sun offense/i }));
+    expect(onOpenDetail).toHaveBeenCalledWith("MB7");
+  });
+
+  it("o link 'ver paste' não dispara onOpenDetail", () => {
+    const onOpenDetail = vi.fn();
+    render(<TeamCard team={makeTeam()} onOpenDetail={onOpenDetail} />);
+    fireEvent.click(screen.getByRole("link", { name: /ver paste/i }));
+    expect(onOpenDetail).not.toHaveBeenCalled();
   });
 });

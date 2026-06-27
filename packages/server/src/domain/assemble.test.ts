@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   assembleTeams,
+  assembleTeamDetail,
   PLACEHOLDER_SPRITE_URL,
   type ResolvedSprite,
 } from "./assemble.js";
 import type { RawTeam } from "./csv.js";
+import type { ParsedSet } from "./paste.js";
 
 const team: RawTeam = {
   id: "MB1",
@@ -57,5 +59,31 @@ describe("assembleTeams", () => {
 
   it("returns an empty list for no teams", () => {
     expect(assembleTeams([], new Map())).toEqual([]);
+  });
+});
+
+describe("assembleTeamDetail", () => {
+  const set: ParsedSet = {
+    species: "Incineroar",
+    item: "Assault Vest",
+    ability: "Intimidate",
+    nature: "Careful",
+    teraType: "Grass",
+    evs: { hp: 252 },
+    ivs: {},
+    moves: ["Fake Out"],
+  };
+
+  it("junta o sprite resolvido por espécie", () => {
+    const sprites = new Map([["Incineroar", { spriteUrl: "https://img/inc.png", dexId: 727 }]]);
+    const detail = assembleTeamDetail("MB1", [set], sprites);
+    expect(detail.id).toBe("MB1");
+    expect(detail.pokemon[0]?.spriteUrl).toBe("https://img/inc.png");
+    expect(detail.pokemon[0]?.item).toBe("Assault Vest");
+  });
+
+  it("espécie sem sprite degrada para o placeholder", () => {
+    const detail = assembleTeamDetail("MB1", [set], new Map());
+    expect(detail.pokemon[0]?.spriteUrl).toBe("/placeholder-sprite.png");
   });
 });
