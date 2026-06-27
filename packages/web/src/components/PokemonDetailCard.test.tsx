@@ -15,6 +15,17 @@ describe("PokemonDetailCard", () => {
     expect(screen.getByText(/Fake Out/)).toBeTruthy();
   });
 
+  it("mostra o ícone do item quando há itemSpriteUrl", () => {
+    render(<PokemonDetailCard set={makeDetailedPokemon({ item: "Assault Vest", itemSpriteUrl: "https://img/av.png" })} />);
+    expect(screen.getByAltText("Assault Vest")).toBeTruthy();
+  });
+
+  it("mostra só o nome do item quando itemSpriteUrl é null", () => {
+    render(<PokemonDetailCard set={makeDetailedPokemon({ item: "Leftovers", itemSpriteUrl: null })} />);
+    expect(screen.queryByAltText("Leftovers")).toBeNull();
+    expect(screen.getByText(/Leftovers/)).toBeTruthy();
+  });
+
   it("omite campos ausentes (nunca mostra 'null')", () => {
     const { container } = render(
       <PokemonDetailCard

@@ -1,6 +1,7 @@
 import type { JSX } from "react";
 import type { DetailedPokemonSet } from "@pokemon-champions/shared";
 import { PokemonSprite } from "./PokemonSprite.js";
+import { ItemSprite } from "./ItemSprite.js";
 
 const STAT_LABEL: Record<string, string> = {
   hp: "HP",
@@ -48,7 +49,12 @@ export function PokemonDetailCard({ set }: { set: DetailedPokemonSet }): JSX.Ele
             </span>
           )}
         </div>
-        {set.item && <span className="text-slate-300">@ {set.item}</span>}
+        {set.item && (
+          <span className="flex items-center gap-1 text-slate-300">
+            {set.itemSpriteUrl && <ItemSprite url={set.itemSpriteUrl} alt={set.item} />}
+            {set.item}
+          </span>
+        )}
         {set.ability && <span className="text-slate-300">{set.ability}</span>}
         {set.nature && <span className="text-slate-300">{set.nature} Nature</span>}
         {evs && <span className="text-slate-400">{evs}</span>}
