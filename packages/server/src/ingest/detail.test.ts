@@ -59,4 +59,12 @@ describe("createTeamDetailService", () => {
     await Promise.all([svc.getTeamDetail("MB1"), svc.getTeamDetail("MB1")]);
     expect(d.fetchPokepaste).toHaveBeenCalledTimes(1);
   });
+
+  it("não cacheia detalhe vazio (pokepaste degenerado)", async () => {
+    const d = deps({ fetchPokepaste: vi.fn().mockResolvedValue("") });
+    const svc = createTeamDetailService(d);
+    const detail = await svc.getTeamDetail("MB1");
+    expect(detail).toEqual({ id: "MB1", pokemon: [] });
+    expect(d.writeDetailCache).not.toHaveBeenCalled();
+  });
 });

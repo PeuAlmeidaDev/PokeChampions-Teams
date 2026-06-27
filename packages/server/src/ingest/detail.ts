@@ -53,7 +53,9 @@ export function createTeamDetailService(
     if (missing.length > 0) await deps.writeSpriteCache(merged);
 
     const detail = assembleTeamDetail(id, sets, merged);
-    await deps.writeDetailCache(id, detail);
+    if (detail.pokemon.length > 0) {
+      await deps.writeDetailCache(id, detail);
+    }
     return detail;
   }
 
