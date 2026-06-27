@@ -49,3 +49,29 @@ export const TeamsResponseSchema = z.object({
   teams: z.array(TeamSchema),
 });
 export type TeamsResponse = z.infer<typeof TeamsResponseSchema>;
+
+/**
+ * Per-Pokémon configuration, shown in the team-detail modal. Fetched on demand
+ * from the team's pokepaste (not part of the grid contract). Every config field
+ * is optional/partial: real pastes omit EVs/IVs/Tera (hurdle #4). The sprite is
+ * resolved by OUR pipeline (PokeAPI + cache), never taken from the pokepaste.
+ */
+export const DetailedPokemonSetSchema = z.object({
+  species: z.string(),
+  spriteUrl: z.string(),
+  item: z.string().nullable(),
+  ability: z.string().nullable(),
+  nature: z.string().nullable(),
+  teraType: z.string().nullable(),
+  evs: z.record(z.string(), z.number()),
+  ivs: z.record(z.string(), z.number()),
+  moves: z.array(z.string()),
+});
+export type DetailedPokemonSet = z.infer<typeof DetailedPokemonSetSchema>;
+
+/** Response body of `GET /api/teams/:id/detail`. */
+export const TeamDetailSchema = z.object({
+  id: z.string(),
+  pokemon: z.array(DetailedPokemonSetSchema),
+});
+export type TeamDetail = z.infer<typeof TeamDetailSchema>;
