@@ -61,48 +61,50 @@ export function App(): JSX.Element {
   const isSearching = query.trim() !== "";
 
   return (
-    <main className="mx-auto max-w-7xl p-6">
-      <h1 className="mb-6 text-2xl font-bold text-slate-900">Pokémon Champions</h1>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <main className="mx-auto max-w-7xl p-6">
+        <h1 className="mb-6 text-2xl font-bold text-slate-100">Pokémon Champions</h1>
 
-      {status === "loading" && <p className="text-slate-500">Carregando times…</p>}
+        {status === "loading" && <p className="text-slate-400">Carregando times…</p>}
 
-      {status === "error" && (
-        <div className="flex flex-col items-start gap-3">
-          <p className="text-slate-700">Não foi possível carregar os times.</p>
-          <button
-            type="button"
-            onClick={load}
-            className="rounded bg-sky-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-sky-700"
-          >
-            Tentar de novo
-          </button>
-        </div>
-      )}
+        {status === "error" && (
+          <div className="flex flex-col items-start gap-3">
+            <p className="text-slate-300">Não foi possível carregar os times.</p>
+            <button
+              type="button"
+              onClick={load}
+              className="rounded bg-violet-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-violet-700"
+            >
+              Tentar de novo
+            </button>
+          </div>
+        )}
 
-      {status === "ready" && (
-        <>
-          <PokemonSearch value={query} onChange={setQuery} />
-          <p className="mb-4 text-sm text-slate-600">
-            {filteredTeams.length === 1
-              ? "1 time campeão"
-              : `${filteredTeams.length} times campeões`}
-          </p>
-          {isSearching && filteredTeams.length === 0 ? (
-            <p className="text-slate-500">Nenhum time com esse Pokémon.</p>
-          ) : (
-            <TeamGrid teams={filteredTeams} onOpenDetail={openDetail} />
-          )}
-        </>
-      )}
+        {status === "ready" && (
+          <>
+            <PokemonSearch value={query} onChange={setQuery} />
+            <p className="mb-4 text-sm text-slate-400">
+              {filteredTeams.length === 1
+                ? "1 time campeão"
+                : `${filteredTeams.length} times campeões`}
+            </p>
+            {isSearching && filteredTeams.length === 0 ? (
+              <p className="text-slate-400">Nenhum time com esse Pokémon.</p>
+            ) : (
+              <TeamGrid teams={filteredTeams} onOpenDetail={openDetail} />
+            )}
+          </>
+        )}
 
-      {selectedId && (
-        <TeamDetailModal
-          status={detailStatus}
-          detail={detail}
-          onClose={closeDetail}
-          onRetry={() => openDetail(selectedId)}
-        />
-      )}
-    </main>
+        {selectedId && (
+          <TeamDetailModal
+            status={detailStatus}
+            detail={detail}
+            onClose={closeDetail}
+            onRetry={() => openDetail(selectedId)}
+          />
+        )}
+      </main>
+    </div>
   );
 }

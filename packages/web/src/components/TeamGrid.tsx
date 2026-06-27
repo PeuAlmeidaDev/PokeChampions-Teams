@@ -14,7 +14,7 @@ export function TeamGrid({
   onOpenDetail: (id: string) => void;
 }): JSX.Element {
   if (teams.length === 0) {
-    return <p className="text-slate-500">Nenhum time para mostrar.</p>;
+    return <p className="text-slate-400">Nenhum time para mostrar.</p>;
   }
 
   return (

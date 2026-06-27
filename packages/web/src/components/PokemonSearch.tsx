@@ -19,7 +19,7 @@ export function PokemonSearch({
       onChange={(e) => onChange(e.target.value)}
       placeholder="Buscar por Pokémon…"
       aria-label="Buscar por Pokémon"
-      className="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-sky-500 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none sm:max-w-xs"
+      className="mb-4 w-full rounded border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus-visible:border-violet-500 focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:outline-none sm:max-w-xs"
     />
   );
 }

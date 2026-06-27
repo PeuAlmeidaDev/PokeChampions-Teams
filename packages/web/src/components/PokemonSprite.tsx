@@ -20,7 +20,7 @@ export function PokemonSprite({
       <div
         role="img"
         aria-label={species}
-        className="flex h-24 w-24 items-center justify-center rounded bg-slate-100 p-1 text-center text-[10px] leading-tight text-slate-500"
+        className="flex h-24 w-24 items-center justify-center rounded bg-slate-700 p-1 text-center text-[10px] leading-tight text-slate-300"
       >
         {species}
       </div>
