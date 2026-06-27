@@ -33,6 +33,12 @@ function naiveSlug(species: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+/** Slug for a held-item name, same naive transform as species. The PokeAPI item
+ * endpoint uses lowercase-hyphenated names (e.g. "Assault Vest" -> "assault-vest"). */
+export function itemSlug(item: string): string {
+  return naiveSlug(item);
+}
+
 export function spriteCandidates(species: string): string[] {
   const candidates: string[] = [];
 

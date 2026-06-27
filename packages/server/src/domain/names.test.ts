@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { spriteCandidates } from "./names.js";
+import { spriteCandidates, itemSlug } from "./names.js";
 
 describe("spriteCandidates", () => {
   it("puts a known override first", () => {
@@ -33,5 +33,24 @@ describe("spriteCandidates", () => {
     const candidates = spriteCandidates("Pikachu");
     expect(candidates).toEqual([...new Set(candidates)]);
     expect(candidates[0]).toBe("pikachu");
+  });
+});
+
+describe("itemSlug", () => {
+  it("lowercases and hyphenates item names", () => {
+    expect(itemSlug("Assault Vest")).toBe("assault-vest");
+    expect(itemSlug("Choice Specs")).toBe("choice-specs");
+    expect(itemSlug("Leftovers")).toBe("leftovers");
+  });
+
+  it("trims hyphens at the edges", () => {
+    expect(itemSlug(" Focus Sash ")).toBe("focus-sash");
+  });
+
+  // Known naive-slug edge: apostrophes hyphenate, but the PokeAPI slug for
+  // "King's Rock" is "kings-rock". Documented as a graceful miss for this
+  // slice (no icon -> name only); an override would fix it later.
+  it("collapses apostrophes into a hyphen (naive behavior, not the API slug)", () => {
+    expect(itemSlug("King's Rock")).toBe("king-s-rock");
   });
 });
