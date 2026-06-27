@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { TeamSchema } from "./index.js";
+import { TeamSchema, DetailedPokemonSetSchema, TeamDetailSchema } from "./index.js";
 
 describe("TeamSchema", () => {
   it("parses a minimal valid team", () => {
@@ -22,8 +22,6 @@ describe("TeamSchema", () => {
     expect(() => TeamSchema.parse({ id: "MB1" })).toThrow();
   });
 });
-
-import { DetailedPokemonSetSchema, TeamDetailSchema } from "./index.js";
 
 describe("DetailedPokemonSetSchema", () => {
   it("aceita um set completo", () => {
