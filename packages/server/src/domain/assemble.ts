@@ -5,8 +5,9 @@
  * an explicit placeholder rather than crashing the response.
  */
 
-import type { Team } from "@pokemon-champions/shared";
+import type { Team, TeamDetail } from "@pokemon-champions/shared";
 import type { RawTeam } from "./csv.js";
+import type { ParsedSet } from "./paste.js";
 
 /** A sprite resolved (or not) for a single species. */
 export interface ResolvedSprite {
@@ -38,4 +39,23 @@ export function assembleTeams(
       };
     }),
   }));
+}
+
+/**
+ * Promotes parsed pokepaste sets into the TeamDetail contract by joining each
+ * species with its resolved sprite (same pipeline as the grid). Pure. A species
+ * with no resolved sprite degrades to the placeholder (graceful degradation).
+ */
+export function assembleTeamDetail(
+  id: string,
+  sets: ParsedSet[],
+  sprites: Map<string, ResolvedSprite>,
+): TeamDetail {
+  return {
+    id,
+    pokemon: sets.map((set) => ({
+      ...set,
+      spriteUrl: sprites.get(set.species)?.spriteUrl ?? PLACEHOLDER_SPRITE_URL,
+    })),
+  };
 }
