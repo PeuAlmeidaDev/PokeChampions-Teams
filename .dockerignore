@@ -1,0 +1,19 @@
+# Installed fresh inside the image
+node_modules
+**/node_modules
+
+# Built inside the image
+**/dist
+*.tsbuildinfo
+
+# Local-only / secrets / scratch
+.env
+**/.env
+.git
+.github
+data
+**/data/cache
+.superpowers
+*.log
+docs
+*.md
