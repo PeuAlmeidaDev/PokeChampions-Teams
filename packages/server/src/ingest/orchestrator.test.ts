@@ -19,6 +19,7 @@ function deps(overrides: Partial<TeamsServiceDeps> = {}): TeamsServiceDeps {
     ),
     readSpriteCache: vi.fn().mockResolvedValue(new Map()),
     writeSpriteCache: vi.fn().mockResolvedValue(undefined),
+    ttlMs: 1_000_000,
     logger: { warn: vi.fn() },
     ...overrides,
   };
@@ -77,6 +78,47 @@ describe("createTeamsService", () => {
     await expect(service.getTeams()).rejects.toThrow("sheet down");
     await expect(service.getTeams()).resolves.toBeTruthy(); // retried
     expect(fetchSheetCsv).toHaveBeenCalledTimes(2);
+  });
+
+  it("re-ingere após o TTL vencer e devolve o dado novo", async () => {
+    let t = 0;
+    const TWO_TEAMS = [
+      "Team ID,Team Description,Pokepaste,Pokemon Text for Copypasta,",
+      "MB1,Sun,https://pokepast.es/a,Miraidon,Flutter Mane",
+      "MB2,Rain,https://pokepast.es/b,Pikachu,",
+    ].join("\n");
+    const fetchSheetCsv = vi
+      .fn()
+      .mockResolvedValueOnce(CSV) // 1º ingest: 1 time
+      .mockResolvedValueOnce(TWO_TEAMS); // 2º ingest (vencido): 2 times
+    const service = createTeamsService(deps({ fetchSheetCsv, ttlMs: 1000, now: () => t }));
+
+    const first = await service.getTeams();
+    expect(first.teams).toHaveLength(1);
+
+    t = 2000; // passou o TTL (>= 1000)
+    const second = await service.getTeams();
+    expect(fetchSheetCsv).toHaveBeenCalledTimes(2);
+    expect(second.teams).toHaveLength(2); // dado fresco
+  });
+
+  it("na falha do re-ingest vencido serve o cache velho e retenta depois", async () => {
+    let t = 0;
+    const fetchSheetCsv = vi
+      .fn()
+      .mockResolvedValueOnce(CSV) // 1º ok
+      .mockRejectedValueOnce(new Error("sheet down")) // 2º (vencido) falha
+      .mockResolvedValueOnce(CSV); // 3º ok (retry)
+    const logger = { warn: vi.fn() };
+    const service = createTeamsService(deps({ fetchSheetCsv, ttlMs: 1000, now: () => t, logger }));
+
+    await service.getTeams(); // carrega
+    t = 2000; // vence
+    const stale = await service.getTeams(); // re-ingest falha -> serve velho, não lança
+    expect(stale.teams).toHaveLength(1);
+    const retried = await service.getTeams(); // ainda vencido -> retenta
+    expect(fetchSheetCsv).toHaveBeenCalledTimes(3);
+    expect(retried.teams).toHaveLength(1);
   });
 
   it("warns when the parsed team count is suspiciously low", async () => {
