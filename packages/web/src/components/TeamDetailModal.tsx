@@ -68,7 +68,7 @@ export function TeamDetailModal({
         {status === "ready" && detail && (
           <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {detail.pokemon.map((set, i) => (
-              <li key={`${set.species}-${i}`}>
+              <li key={`${set.species}-${i}`} className="h-full">
                 <PokemonDetailCard set={set} />
               </li>
             ))}

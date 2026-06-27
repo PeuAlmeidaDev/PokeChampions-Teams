@@ -23,4 +23,13 @@ describe("PokemonDetailCard", () => {
     );
     expect(container.textContent).not.toContain("null");
   });
+
+  it("renderiza cada golpe como um chip próprio (não uma string única)", () => {
+    render(<PokemonDetailCard set={makeDetailedPokemon()} />);
+    // Exact-match getByText: only passes if each move is its own element.
+    // The old joined string "Fake Out · Knock Off · …" fails an exact match.
+    for (const move of ["Fake Out", "Knock Off", "Parting Shot", "Flare Blitz"]) {
+      expect(screen.getByText(move)).toBeTruthy();
+    }
+  });
 });
