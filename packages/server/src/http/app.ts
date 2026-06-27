@@ -1,4 +1,5 @@
 import Fastify, { type FastifyInstance } from "fastify";
+import fastifyStatic from "@fastify/static";
 import {
   serializerCompiler,
   validatorCompiler,
@@ -17,6 +18,8 @@ import { z } from "zod";
 export interface AppDeps {
   getTeams: () => Promise<TeamsResponse>;
   getTeamDetail: (id: string) => Promise<TeamDetail | null>;
+  /** When set, serve this dir (the built SPA) statically with an index.html fallback. */
+  webDistPath?: string;
 }
 
 /**
@@ -82,6 +85,20 @@ export function buildApp(deps: AppDeps): FastifyInstance {
       }
     },
   });
+
+  // Serve the built SPA in production (single process, no CORS). Opt-in: dev
+  // leaves this unset (Vite serves the SPA), so the API runs alone.
+  if (deps.webDistPath) {
+    app.register(fastifyStatic, { root: deps.webDistPath, wildcard: false });
+    app.setNotFoundHandler((req, reply) => {
+      // /api misses stay JSON 404 (don't leak HTML into the API contract);
+      // every other unmatched GET is a client route → serve the SPA shell.
+      if (req.url.startsWith("/api")) {
+        return reply.code(404).send({ error: "not found" });
+      }
+      return reply.code(200).type("text/html").sendFile("index.html");
+    });
+  }
 
   return app;
 }
