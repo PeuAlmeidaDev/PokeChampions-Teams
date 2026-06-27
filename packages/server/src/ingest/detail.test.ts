@@ -11,6 +11,9 @@ function deps(overrides = {}) {
     resolveSprites: vi.fn().mockResolvedValue(new Map([["Incineroar", { spriteUrl: "https://img/inc.png", dexId: 727 }]])),
     readSpriteCache: vi.fn().mockResolvedValue(new Map()),
     writeSpriteCache: vi.fn().mockResolvedValue(undefined),
+    resolveItemSprites: vi.fn().mockResolvedValue(new Map()),
+    readItemCache: vi.fn().mockResolvedValue(new Map()),
+    writeItemCache: vi.fn().mockResolvedValue(undefined),
     readDetailCache: vi.fn().mockResolvedValue(null),
     writeDetailCache: vi.fn().mockResolvedValue(undefined),
     ...overrides,
@@ -58,6 +61,26 @@ describe("createTeamDetailService", () => {
     const svc = createTeamDetailService(d);
     await Promise.all([svc.getTeamDetail("MB1"), svc.getTeamDetail("MB1")]);
     expect(d.fetchPokepaste).toHaveBeenCalledTimes(1);
+  });
+
+  it("resolve item sprites e os inclui no detalhe", async () => {
+    const resolveItemSprites = vi.fn().mockResolvedValue(new Map([["Assault Vest", "https://img/av.png"]]));
+    const d = deps({ resolveItemSprites });
+    const svc = createTeamDetailService(d);
+    const detail = await svc.getTeamDetail("MB1");
+    expect(detail?.pokemon[0]?.itemSpriteUrl).toBe("https://img/av.png");
+  });
+
+  it("não re-busca item já presente no cache de itens", async () => {
+    const resolveItemSprites = vi.fn().mockResolvedValue(new Map());
+    const d = deps({
+      resolveItemSprites,
+      readItemCache: vi.fn().mockResolvedValue(new Map([["Assault Vest", "https://cached/av.png"]])),
+    });
+    const svc = createTeamDetailService(d);
+    const detail = await svc.getTeamDetail("MB1");
+    expect(resolveItemSprites).not.toHaveBeenCalled();
+    expect(detail?.pokemon[0]?.itemSpriteUrl).toBe("https://cached/av.png");
   });
 
   it("não cacheia detalhe vazio (pokepaste degenerado)", async () => {

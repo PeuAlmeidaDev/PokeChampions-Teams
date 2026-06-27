@@ -18,6 +18,9 @@ export interface TeamDetailServiceDeps {
   resolveSprites: (species: string[]) => Promise<Map<string, ResolvedSprite>>;
   readSpriteCache: () => Promise<Map<string, ResolvedSprite>>;
   writeSpriteCache: (sprites: Map<string, ResolvedSprite>) => Promise<void>;
+  resolveItemSprites: (items: string[]) => Promise<Map<string, string>>;
+  readItemCache: () => Promise<Map<string, string>>;
+  writeItemCache: (items: Map<string, string>) => Promise<void>;
   readDetailCache: (id: string) => Promise<TeamDetail | null>;
   writeDetailCache: (id: string, detail: TeamDetail) => Promise<void>;
 }
@@ -52,7 +55,19 @@ export function createTeamDetailService(
     const merged = new Map([...spriteCache, ...fresh]);
     if (missing.length > 0) await deps.writeSpriteCache(merged);
 
-    const detail = assembleTeamDetail(id, sets, merged, new Map());
+    const wantedItems = [
+      ...new Set(sets.map((s) => s.item).filter((i): i is string => i !== null)),
+    ];
+    const itemCache = await deps.readItemCache();
+    const missingItems = wantedItems.filter((i) => !itemCache.has(i));
+    const freshItems =
+      missingItems.length > 0
+        ? await deps.resolveItemSprites(missingItems)
+        : new Map<string, string>();
+    const mergedItems = new Map([...itemCache, ...freshItems]);
+    if (missingItems.length > 0) await deps.writeItemCache(mergedItems);
+
+    const detail = assembleTeamDetail(id, sets, merged, mergedItems);
     if (detail.pokemon.length > 0) {
       await deps.writeDetailCache(id, detail);
     }

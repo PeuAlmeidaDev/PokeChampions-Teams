@@ -4,7 +4,9 @@ import { createTeamDetailService } from "./ingest/detail.js";
 import { fetchSheetCsv } from "./ingest/sheet.js";
 import { fetchPokepaste } from "./ingest/pokepaste.js";
 import { resolveSprites } from "./ingest/sprites.js";
+import { resolveItemSprites } from "./ingest/items.js";
 import { readSpriteCache, writeSpriteCache } from "./cache/sprites.js";
+import { readItemCache, writeItemCache } from "./cache/items.js";
 import { readDetailCache, writeDetailCache } from "./cache/detail.js";
 
 // Entry point = the edge: the only place that reads the environment.
@@ -13,6 +15,7 @@ const host = process.env.HOST ?? "0.0.0.0";
 const sheetUrl = process.env.SHEET_CSV_URL;
 const pokeApiBaseUrl = process.env.POKEAPI_BASE_URL ?? "https://pokeapi.co/api/v2";
 const spriteCachePath = process.env.SPRITE_CACHE_PATH ?? "data/cache/sprites.json";
+const itemCachePath = process.env.ITEM_CACHE_PATH ?? "data/cache/items.json";
 const detailCacheDir = process.env.DETAIL_CACHE_DIR ?? "data/cache/details";
 
 if (!sheetUrl) {
@@ -36,6 +39,9 @@ const detailService = createTeamDetailService({
   resolveSprites: (species) => resolveSprites(species, { baseUrl: pokeApiBaseUrl, logger }),
   readSpriteCache: () => readSpriteCache(spriteCachePath),
   writeSpriteCache: (sprites) => writeSpriteCache(spriteCachePath, sprites),
+  resolveItemSprites: (items) => resolveItemSprites(items, { baseUrl: pokeApiBaseUrl, logger }),
+  readItemCache: () => readItemCache(itemCachePath),
+  writeItemCache: (items) => writeItemCache(itemCachePath, items),
   readDetailCache: (id) => readDetailCache(detailCacheDir, id),
   writeDetailCache: (id, detail) => writeDetailCache(detailCacheDir, id, detail),
 });
