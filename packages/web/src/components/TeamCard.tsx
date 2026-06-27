@@ -28,7 +28,7 @@ export function TeamCard({
       <button
         type="button"
         onClick={() => onOpenDetail(team.id)}
-        className="absolute inset-0 z-0 rounded-lg"
+        className="absolute inset-0 z-0 rounded-lg focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
         aria-label={team.name}
       />
       <header className="pointer-events-none relative z-10 flex flex-col gap-1">

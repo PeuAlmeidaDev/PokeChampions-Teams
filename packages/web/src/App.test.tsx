@@ -78,4 +78,21 @@ describe("App", () => {
     fireEvent.click(card);
     expect(await screen.findByText("Incineroar")).toBeTruthy();
   });
+
+  it("shows error state in detail modal with retry button", async () => {
+    const fetchMock = vi.fn((url: string) => {
+      if (url.includes("/detail")) {
+        return Promise.resolve({ ok: false, status: 503, json: async () => ({}) });
+      }
+      return Promise.resolve({ ok: true, json: async () => makeTeamsResponse({ teams: [makeTeam({ id: "MB1", name: "Sun Offense" })] }) });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<App />);
+    const card = await screen.findByRole("button", { name: /sun offense/i });
+    fireEvent.click(card);
+
+    expect(await screen.findByText(/não foi possível/i)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /tentar de novo/i })).toBeTruthy();
+  });
 });

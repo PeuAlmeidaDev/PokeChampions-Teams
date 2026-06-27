@@ -45,21 +45,31 @@ export function App(): JSX.Element {
   useEffect(() => load(), [load]);
 
   const openDetail = useCallback((id: string) => {
+    let active = true;
     setSelectedId(id);
     setDetail(null);
     setDetailStatus("loading");
     fetchTeamDetail(id)
       .then((d) => {
+        if (!active) return;
         setDetail(d);
         setDetailStatus("ready");
       })
       .catch((err: unknown) => {
+        if (!active) return;
         console.error("Failed to load team detail", err);
         setDetailStatus("error");
       });
+    return () => {
+      active = false;
+    };
   }, []);
 
-  const closeDetail = useCallback(() => setSelectedId(null), []);
+  const closeDetail = useCallback(() => {
+    setSelectedId(null);
+    setDetail(null);
+    setDetailStatus("loading");
+  }, []);
 
   return (
     <main className="mx-auto max-w-7xl p-6">
