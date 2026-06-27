@@ -14,6 +14,7 @@ const port = Number(process.env.PORT ?? 3000);
 const host = process.env.HOST ?? "0.0.0.0";
 const sheetUrl = process.env.SHEET_CSV_URL;
 const pokeApiBaseUrl = process.env.POKEAPI_BASE_URL ?? "https://pokeapi.co/api/v2";
+const teamsTtlMs = Number(process.env.TEAMS_TTL_MS ?? 6 * 60 * 60 * 1000); // default 6h
 const spriteCachePath = process.env.SPRITE_CACHE_PATH ?? "data/cache/sprites.json";
 const itemCachePath = process.env.ITEM_CACHE_PATH ?? "data/cache/items.json";
 const detailCacheDir = process.env.DETAIL_CACHE_DIR ?? "data/cache/details";
@@ -30,6 +31,7 @@ const service = createTeamsService({
   resolveSprites: (species) => resolveSprites(species, { baseUrl: pokeApiBaseUrl, logger }),
   readSpriteCache: () => readSpriteCache(spriteCachePath),
   writeSpriteCache: (sprites) => writeSpriteCache(spriteCachePath, sprites),
+  ttlMs: teamsTtlMs,
   logger,
 });
 
