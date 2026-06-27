@@ -48,8 +48,14 @@ export function TeamCard({
 
       <ul className="pointer-events-none relative z-10 grid grid-cols-3 gap-2">
         {team.pokemon.map((p, i) => (
-          <li key={`${p.species}-${i}`} className="flex justify-center">
+          <li key={`${p.species}-${i}`} className="flex flex-col items-center gap-1">
             <PokemonSprite species={p.species} spriteUrl={p.spriteUrl} />
+            <span
+              title={p.species}
+              className="w-full truncate text-center text-xs text-slate-600"
+            >
+              {p.species}
+            </span>
           </li>
         ))}
       </ul>

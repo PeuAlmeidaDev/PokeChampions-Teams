@@ -27,6 +27,9 @@ describe("TeamCard", () => {
     expect(screen.getByText("Kaito Arii · @ub_slow")).toBeTruthy();
     expect(screen.getByAltText("Charizard")).toBeTruthy();
     expect(screen.getByAltText("Garchomp")).toBeTruthy();
+    // Each sprite is labelled with the Pokémon's name on the main screen.
+    expect(screen.getByText("Charizard")).toBeTruthy();
+    expect(screen.getByText("Garchomp")).toBeTruthy();
     // The card shows a "Ver detalhes" cue and no longer links out to the paste.
     expect(screen.getByText(/ver detalhes/i)).toBeTruthy();
     expect(screen.queryByRole("link", { name: /ver paste/i })).toBeNull();
