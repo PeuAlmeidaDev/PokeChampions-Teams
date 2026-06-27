@@ -1,9 +1,11 @@
 /**
- * The ingest conductor. Lazy + single-flight: the first request triggers the
- * pipeline (sheet → parse → resolve sprites, skipping the disk cache → assemble),
- * concurrent callers share the in-flight promise, and the assembled result is
- * held in memory. On failure the promise is cleared so the next call retries —
- * the route turns a rejection into a 503 and the source can recover on its own.
+ * The ingest conductor. Lazy + single-flight + hard TTL: the first request
+ * triggers the pipeline (sheet → parse → resolve sprites, skipping the disk
+ * cache → assemble), concurrent callers share the in-flight promise, and the
+ * assembled result is held in memory with a timestamp. Once the cache is older
+ * than ttlMs, the next call re-ingests inline (the caller waits) and refreshes
+ * it. A failed refresh serves the stale cache (logged) rather than erroring;
+ * only a first-ever load with no cache propagates the failure (route → 503).
  */
 
 import type { TeamsResponse } from "@pokemon-champions/shared";
@@ -18,6 +20,10 @@ export interface TeamsServiceDeps {
   resolveSprites: (species: string[]) => Promise<Map<string, ResolvedSprite>>;
   readSpriteCache: () => Promise<Map<string, ResolvedSprite>>;
   writeSpriteCache: (sprites: Map<string, ResolvedSprite>) => Promise<void>;
+  /** Cache validity in ms; past this the next getTeams re-ingests. */
+  ttlMs: number;
+  /** Injectable clock (default Date.now) — lets tests drive expiry deterministically. */
+  now?: () => number;
   logger?: { warn: (msg: string) => void };
 }
 
@@ -27,7 +33,9 @@ export interface TeamsService {
 
 export function createTeamsService(deps: TeamsServiceDeps): TeamsService {
   const logger = deps.logger ?? console;
+  const now = deps.now ?? Date.now;
   let cached: TeamsResponse | null = null;
+  let cachedAt: number | null = null;
   let inFlight: Promise<TeamsResponse> | null = null;
 
   async function ingest(): Promise<TeamsResponse> {
@@ -58,17 +66,32 @@ export function createTeamsService(deps: TeamsServiceDeps): TeamsService {
     return { fetchedAt: new Date().toISOString(), teams };
   }
 
+  function isStale(): boolean {
+    return cachedAt !== null && now() - cachedAt >= deps.ttlMs;
+  }
+
   return {
     getTeams() {
-      if (cached) return Promise.resolve(cached);
+      if (cached && !isStale()) return Promise.resolve(cached);
       if (inFlight) return inFlight;
       inFlight = ingest()
         .then((result) => {
           cached = result;
+          cachedAt = now();
           return result;
         })
+        .catch((err: unknown) => {
+          // Refresh failed: serve the stale cache rather than erroring. cachedAt
+          // is left unchanged, so the next call retries. Only a first-ever load
+          // with no cache propagates (route → 503).
+          if (cached) {
+            logger.warn(`[ingest] refresh failed, serving stale teams: ${String(err)}`);
+            return cached;
+          }
+          throw err;
+        })
         .finally(() => {
-          inFlight = null; // clear whether it resolved or rejected; success kept in `cached`
+          inFlight = null; // success kept in `cached`; failure leaves stale cache in place
         });
       return inFlight;
     },
