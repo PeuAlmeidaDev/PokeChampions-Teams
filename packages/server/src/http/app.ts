@@ -4,13 +4,19 @@ import {
   validatorCompiler,
   type ZodTypeProvider,
 } from "fastify-type-provider-zod";
-import { TeamsResponseSchema, type TeamsResponse } from "@pokemon-champions/shared";
+import {
+  TeamsResponseSchema,
+  TeamDetailSchema,
+  type TeamsResponse,
+  type TeamDetail,
+} from "@pokemon-champions/shared";
 import { z } from "zod";
 
 /** Everything the HTTP layer needs from the rest of the app, injected so tests
  * can drive routes without touching the network. */
 export interface AppDeps {
   getTeams: () => Promise<TeamsResponse>;
+  getTeamDetail: (id: string) => Promise<TeamDetail | null>;
 }
 
 /**
@@ -49,6 +55,30 @@ export function buildApp(deps: AppDeps): FastifyInstance {
       } catch (err) {
         app.log.error(err);
         return reply.code(503).send({ error: "teams temporarily unavailable" });
+      }
+    },
+  });
+
+  api.route({
+    method: "GET",
+    url: "/api/teams/:id/detail",
+    schema: {
+      params: z.object({ id: z.string().regex(/^[A-Za-z0-9_-]+$/) }),
+      response: {
+        200: TeamDetailSchema,
+        404: z.object({ error: z.string() }),
+        503: z.object({ error: z.string() }),
+      },
+    },
+    // Thin handler: ask the detail service; null -> 404, throw -> 503.
+    handler: async (req, reply) => {
+      try {
+        const detail = await deps.getTeamDetail(req.params.id);
+        if (!detail) return reply.code(404).send({ error: "team not found" });
+        return detail;
+      } catch (err) {
+        app.log.error(err);
+        return reply.code(503).send({ error: "team detail temporarily unavailable" });
       }
     },
   });

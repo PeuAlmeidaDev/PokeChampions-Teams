@@ -1,6 +1,10 @@
 import type { FastifyInstance } from "fastify";
-import { afterEach, expect, it, vi } from "vitest";
-import { TeamsResponseSchema, type TeamsResponse } from "@pokemon-champions/shared";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  TeamsResponseSchema,
+  TeamDetailSchema,
+  type TeamsResponse,
+} from "@pokemon-champions/shared";
 import { buildApp } from "./app.js";
 
 let app: FastifyInstance;
@@ -25,7 +29,10 @@ const sample: TeamsResponse = {
 };
 
 it("GET /api/health returns ok", async () => {
-  app = buildApp({ getTeams: vi.fn().mockResolvedValue(sample) });
+  app = buildApp({
+    getTeams: vi.fn().mockResolvedValue(sample),
+    getTeamDetail: vi.fn().mockResolvedValue(null),
+  });
   await app.ready();
 
   const res = await app.inject({ method: "GET", url: "/api/health" });
@@ -35,7 +42,10 @@ it("GET /api/health returns ok", async () => {
 });
 
 it("GET /api/teams returns what the ingest service produced", async () => {
-  app = buildApp({ getTeams: vi.fn().mockResolvedValue(sample) });
+  app = buildApp({
+    getTeams: vi.fn().mockResolvedValue(sample),
+    getTeamDetail: vi.fn().mockResolvedValue(null),
+  });
   await app.ready();
 
   const res = await app.inject({ method: "GET", url: "/api/teams" });
@@ -46,10 +56,62 @@ it("GET /api/teams returns what the ingest service produced", async () => {
 });
 
 it("GET /api/teams returns 503 when ingest fails", async () => {
-  app = buildApp({ getTeams: vi.fn().mockRejectedValue(new Error("sheet down")) });
+  app = buildApp({
+    getTeams: vi.fn().mockRejectedValue(new Error("sheet down")),
+    getTeamDetail: vi.fn().mockResolvedValue(null),
+  });
   await app.ready();
 
   const res = await app.inject({ method: "GET", url: "/api/teams" });
 
   expect(res.statusCode).toBe(503);
+});
+
+const sampleDetail = {
+  id: "MB1",
+  pokemon: [
+    {
+      species: "Pikachu",
+      spriteUrl: "x",
+      item: null,
+      ability: null,
+      nature: null,
+      teraType: null,
+      evs: {},
+      ivs: {},
+      moves: [],
+    },
+  ],
+};
+
+describe("GET /api/teams/:id/detail", () => {
+  it("200 com o detalhe", async () => {
+    app = buildApp({
+      getTeams: vi.fn().mockResolvedValue(sample),
+      getTeamDetail: async () => sampleDetail,
+    });
+    const res = await app.inject({ method: "GET", url: "/api/teams/MB1/detail" });
+    expect(res.statusCode).toBe(200);
+    expect(TeamDetailSchema.parse(res.json()).id).toBe("MB1");
+  });
+
+  it("404 quando o serviço devolve null", async () => {
+    app = buildApp({
+      getTeams: vi.fn().mockResolvedValue(sample),
+      getTeamDetail: async () => null,
+    });
+    const res = await app.inject({ method: "GET", url: "/api/teams/NOPE/detail" });
+    expect(res.statusCode).toBe(404);
+  });
+
+  it("503 quando o serviço lança", async () => {
+    app = buildApp({
+      getTeams: vi.fn().mockResolvedValue(sample),
+      getTeamDetail: async () => {
+        throw new Error("pokepaste down");
+      },
+    });
+    const res = await app.inject({ method: "GET", url: "/api/teams/MB1/detail" });
+    expect(res.statusCode).toBe(503);
+  });
 });
