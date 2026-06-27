@@ -24,13 +24,20 @@ describe("fetchPokepaste", () => {
   });
 
   it("dá retry em 5xx e então sucesso", async () => {
-    const fetchImpl = vi
-      .fn()
-      .mockResolvedValueOnce(res(500, {}))
-      .mockResolvedValueOnce(res(200, { paste: "ok" }));
-    const paste = await fetchPokepaste("https://pokepast.es/y", { fetchImpl });
-    expect(paste).toBe("ok");
-    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    vi.useFakeTimers();
+    try {
+      const fetchImpl = vi
+        .fn()
+        .mockResolvedValueOnce(res(500, {}))
+        .mockResolvedValueOnce(res(200, { paste: "ok" }));
+      const promise = fetchPokepaste("https://pokepast.es/y", { fetchImpl });
+      await vi.runAllTimersAsync();
+      const paste = await promise;
+      expect(paste).toBe("ok");
+      expect(fetchImpl).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("lança se o json não tiver o shape esperado", async () => {
