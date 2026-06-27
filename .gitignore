@@ -24,3 +24,6 @@ coverage/
 # misc
 .DS_Store
 *.log
+
+# stray screenshots pasted at the repo root (real assets live in packages/web/public)
+/*.png
