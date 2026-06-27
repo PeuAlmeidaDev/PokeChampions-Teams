@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { App } from "./App.js";
-import { makeTeam, makeTeamsResponse } from "./test/factories.js";
+import { makePokemon, makeTeam, makeTeamsResponse } from "./test/factories.js";
 
 afterEach(() => {
   cleanup();
@@ -77,6 +77,39 @@ describe("App", () => {
     const card = await screen.findByRole("button", { name: /sun offense/i });
     fireEvent.click(card);
     expect(await screen.findByText("Incineroar")).toBeTruthy();
+  });
+
+  it("filters the grid by Pokémon name as the user types", async () => {
+    const body = makeTeamsResponse({
+      teams: [
+        makeTeam({ id: "MB1", name: "Sun Offense", pokemon: [makePokemon({ species: "Incineroar" })] }),
+        makeTeam({ id: "MB2", name: "Trick Room", pokemon: [makePokemon({ species: "Pikachu" })] }),
+      ],
+    });
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => body })));
+
+    render(<App />);
+    expect(await screen.findByText("Sun Offense")).toBeTruthy();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "pikachu" } });
+
+    expect(screen.queryByText("Sun Offense")).toBeNull();
+    expect(screen.getByText("Trick Room")).toBeTruthy();
+    expect(screen.getByText("1 time campeão")).toBeTruthy();
+  });
+
+  it("shows a search-specific empty message when nothing matches", async () => {
+    const body = makeTeamsResponse({
+      teams: [makeTeam({ id: "MB1", name: "Sun Offense", pokemon: [makePokemon({ species: "Incineroar" })] })],
+    });
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => body })));
+
+    render(<App />);
+    expect(await screen.findByText("Sun Offense")).toBeTruthy();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "charizard" } });
+
+    expect(screen.getByText(/nenhum time com esse pokémon/i)).toBeTruthy();
   });
 
   it("shows error state in detail modal with retry button", async () => {
