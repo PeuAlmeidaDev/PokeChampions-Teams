@@ -1,4 +1,4 @@
-import type { PokemonSet, Team, TeamsResponse } from "@pokemon-champions/shared";
+import type { DetailedPokemonSet, PokemonSet, Team, TeamsResponse, TeamDetail } from "@pokemon-champions/shared";
 
 /**
  * Test-only factories for the shared contract. One place to build a minimal
@@ -37,6 +37,31 @@ export function makePokemon(overrides: Partial<PokemonSet> = {}): PokemonSet {
     species: "Pikachu",
     spriteUrl: "https://img/pikachu.png",
     dexId: 25,
+    ...overrides,
+  };
+}
+
+export function makeDetailedPokemon(
+  overrides: Partial<DetailedPokemonSet> = {},
+): DetailedPokemonSet {
+  return {
+    species: "Incineroar",
+    spriteUrl: "https://img/incineroar.png",
+    item: "Assault Vest",
+    ability: "Intimidate",
+    nature: "Careful",
+    teraType: "Grass",
+    evs: { hp: 252, atk: 4, spd: 252 },
+    ivs: {},
+    moves: ["Fake Out", "Knock Off", "Parting Shot", "Flare Blitz"],
+    ...overrides,
+  };
+}
+
+export function makeTeamDetail(overrides: Partial<TeamDetail> = {}): TeamDetail {
+  return {
+    id: "MB1",
+    pokemon: [makeDetailedPokemon()],
     ...overrides,
   };
 }
