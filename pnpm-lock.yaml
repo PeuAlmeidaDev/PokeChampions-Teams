@@ -26,6 +26,9 @@ importers:
 
   packages/server:
     dependencies:
+      '@pkmn/sets':
+        specifier: ^5.2.0
+        version: 5.2.0
       '@pokemon-champions/shared':
         specifier: workspace:*
         version: link:../shared
@@ -692,6 +695,12 @@ packages:
 
   '@pinojs/redact@0.4.0':
     resolution: {integrity: sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg==}
+
+  '@pkmn/sets@5.2.0':
+    resolution: {integrity: sha512-WHAW6bZu0WCo/3b+LTW7BE0fBhYZnWH1lCXIu2an8/wTiZ/+s1eTcQYj7W/YQKxWT5dm/La03AZ6CeqdJip9CQ==}
+
+  '@pkmn/types@4.0.0':
+    resolution: {integrity: sha512-gR2s/pxJYEegek1TtsYCQupNR3d5hMlcJFsiD+2LyfKr4tc+gETTql47tWLX5mFSbPcbXh7f4+7txlMIDoZx/g==}
 
   '@rolldown/binding-android-arm64@1.0.3':
     resolution: {integrity: sha512-454rs7jHngixp/NMxd5srYD57OnzSlZ/eFTETjORQHLwJG1lRtmNOJcBerZlfu4GjKqeq8aCCIQrMdHyhI51Hw==}
@@ -2730,6 +2739,12 @@ snapshots:
   '@oxc-project/types@0.133.0': {}
 
   '@pinojs/redact@0.4.0': {}
+
+  '@pkmn/sets@5.2.0':
+    dependencies:
+      '@pkmn/types': 4.0.0
+
+  '@pkmn/types@4.0.0': {}
 
   '@rolldown/binding-android-arm64@1.0.3':
     optional: true
