@@ -32,33 +32,33 @@ export function TeamDetailModal({
     <div
       data-testid="modal-backdrop"
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/50 p-4 sm:p-8"
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-950/70 p-4 sm:p-8"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-3xl rounded-xl bg-slate-50 p-5 shadow-xl"
+        className="w-full max-w-3xl rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-xl"
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900">Detalhe do time</h2>
+          <h2 className="text-lg font-bold text-slate-100">Detalhe do time</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Fechar"
-            className="rounded px-2 py-1 text-slate-500 hover:bg-slate-200"
+            className="rounded px-2 py-1 text-slate-400 hover:bg-slate-800"
           >
             ✕
           </button>
         </div>
 
-        {status === "loading" && <p className="text-slate-500">Carregando detalhe…</p>}
+        {status === "loading" && <p className="text-slate-400">Carregando detalhe…</p>}
 
         {status === "error" && (
           <div className="flex flex-col items-start gap-3">
-            <p className="text-slate-700">Não foi possível carregar o detalhe.</p>
+            <p className="text-slate-300">Não foi possível carregar o detalhe.</p>
             <button
               type="button"
               onClick={onRetry}
-              className="rounded bg-sky-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-sky-700"
+              className="rounded bg-violet-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-violet-700"
             >
               Tentar de novo
             </button>

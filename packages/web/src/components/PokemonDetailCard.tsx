@@ -28,23 +28,23 @@ export function PokemonDetailCard({ set }: { set: DetailedPokemonSet }): JSX.Ele
   const evs = formatStats(set.evs);
 
   return (
-    <article className="flex gap-3 rounded-lg border border-slate-200 bg-white p-3">
+    <article className="flex gap-3 rounded-lg border border-slate-700 bg-slate-800 p-3">
       <PokemonSprite species={set.species} spriteUrl={set.spriteUrl} />
       <div className="flex flex-col gap-0.5 text-sm">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-slate-900">{set.species}</span>
+          <span className="font-semibold text-slate-100">{set.species}</span>
           {set.teraType && (
-            <span className="rounded-full bg-fuchsia-100 px-2 py-0.5 text-xs font-medium text-fuchsia-800">
+            <span className="rounded-full bg-fuchsia-500/15 px-2 py-0.5 text-xs font-medium text-fuchsia-300">
               Tera {set.teraType}
             </span>
           )}
         </div>
-        {set.item && <span className="text-slate-600">@ {set.item}</span>}
-        {set.ability && <span className="text-slate-600">{set.ability}</span>}
-        {set.nature && <span className="text-slate-600">{set.nature} Nature</span>}
-        {evs && <span className="text-slate-500">{evs}</span>}
+        {set.item && <span className="text-slate-300">@ {set.item}</span>}
+        {set.ability && <span className="text-slate-300">{set.ability}</span>}
+        {set.nature && <span className="text-slate-300">{set.nature} Nature</span>}
+        {evs && <span className="text-slate-400">{evs}</span>}
         {set.moves.length > 0 && (
-          <span className="text-sky-800">{set.moves.join(" · ")}</span>
+          <span className="text-sky-300">{set.moves.join(" · ")}</span>
         )}
       </div>
     </article>
