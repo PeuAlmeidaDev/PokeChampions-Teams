@@ -6,14 +6,13 @@ import { makePokemon, makeTeam } from "../test/factories.js";
 afterEach(cleanup);
 
 describe("TeamCard", () => {
-  it("shows name, rank, tournament, owner, all sprites and the paste link", () => {
+  it("shows name, rank, tournament, owner, all sprites and a detail affordance", () => {
     const team = makeTeam({
       name: "Sun Offense",
       rank: "2nd",
       tournament: "Ruler of Origin Tour",
       ownerName: "Kaito Arii",
       ownerHandle: "ub_slow",
-      pokepasteUrl: "https://pokepast.es/abc",
       pokemon: [
         makePokemon({ species: "Charizard" }),
         makePokemon({ species: "Garchomp" }),
@@ -28,9 +27,9 @@ describe("TeamCard", () => {
     expect(screen.getByText("Kaito Arii · @ub_slow")).toBeTruthy();
     expect(screen.getByAltText("Charizard")).toBeTruthy();
     expect(screen.getByAltText("Garchomp")).toBeTruthy();
-    expect(
-      screen.getByRole("link", { name: /ver paste/i }).getAttribute("href"),
-    ).toBe("https://pokepast.es/abc");
+    // The card shows a "Ver detalhes" cue and no longer links out to the paste.
+    expect(screen.getByText(/ver detalhes/i)).toBeTruthy();
+    expect(screen.queryByRole("link", { name: /ver paste/i })).toBeNull();
   });
 
   it("omits optional fields that are null (never renders 'null')", () => {
@@ -54,12 +53,5 @@ describe("TeamCard", () => {
     render(<TeamCard team={makeTeam({ id: "MB7" })} onOpenDetail={onOpenDetail} />);
     fireEvent.click(screen.getByRole("button", { name: /sun offense/i }));
     expect(onOpenDetail).toHaveBeenCalledWith("MB7");
-  });
-
-  it("o link 'ver paste' não dispara onOpenDetail", () => {
-    const onOpenDetail = vi.fn();
-    render(<TeamCard team={makeTeam()} onOpenDetail={onOpenDetail} />);
-    fireEvent.click(screen.getByRole("link", { name: /ver paste/i }));
-    expect(onOpenDetail).not.toHaveBeenCalled();
   });
 });

@@ -3,14 +3,14 @@ import type { Team } from "@pokemon-champions/shared";
 import { PokemonSprite } from "./PokemonSprite.js";
 
 /**
- * One champion team as a card: metadata header + a 3-column sprite grid + a link
- * to the source paste. Presentational only. Optional fields (rank, tournament,
- * owner) are omitted when null so the UI never shows "null".
+ * One champion team as a card: metadata header + a 3-column sprite grid. The
+ * whole card is a single button that opens the detail modal (the modal now shows
+ * the full config, so we no longer link out to the external paste). Presentational
+ * only. Optional fields (rank, tournament, owner) are omitted when null so the UI
+ * never shows "null".
  *
- * An absolute-positioned <button> captures card clicks and calls onOpenDetail;
- * header/sprite areas are pointer-events-none (click falls through to the button);
- * the paste <a> sits above (z-10) with stopPropagation so it stays independently
- * clickable without triggering the modal.
+ * An absolute-positioned <button> covers the card and calls onOpenDetail; the
+ * content sits above it as pointer-events-none, so any click lands on the button.
  */
 export function TeamCard({
   team,
@@ -54,15 +54,9 @@ export function TeamCard({
         ))}
       </ul>
 
-      <a
-        href={team.pokepasteUrl}
-        target="_blank"
-        rel="noreferrer"
-        onClick={(e) => e.stopPropagation()}
-        className="relative z-10 mt-auto text-sm text-sky-600 hover:underline"
-      >
-        ver paste →
-      </a>
+      <span className="pointer-events-none relative z-10 mt-auto text-sm font-medium text-sky-600">
+        Ver detalhes →
+      </span>
     </article>
   );
 }
