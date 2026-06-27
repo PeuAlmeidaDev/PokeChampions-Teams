@@ -52,7 +52,11 @@ export function TeamCard({
         ))}
         {Array.from({ length: emptySlots }, (_, i) => (
           <li key={`empty-${i}`} aria-hidden className="flex flex-col items-center gap-1">
+            {/* h-24 w-24 must match PokemonSprite's size; the empty name line
+                reserves the same height as a populated cell so a fully-empty
+                row doesn't shrink the band (keeps cards aligned). */}
             <div className="h-24 w-24" />
+            <span className="text-xs">&nbsp;</span>
           </li>
         ))}
       </ul>
