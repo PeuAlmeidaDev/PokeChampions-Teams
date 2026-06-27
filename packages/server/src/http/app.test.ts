@@ -73,6 +73,7 @@ const sampleDetail = {
     {
       species: "Pikachu",
       spriteUrl: "x",
+      itemSpriteUrl: null,
       item: null,
       ability: null,
       nature: null,

@@ -10,7 +10,7 @@ import { Sets } from "@pkmn/sets";
 import type { PokemonSet } from "@pkmn/sets";
 import type { DetailedPokemonSet } from "@pokemon-champions/shared";
 
-export type ParsedSet = Omit<DetailedPokemonSet, "spriteUrl">;
+export type ParsedSet = Omit<DetailedPokemonSet, "spriteUrl" | "itemSpriteUrl">;
 
 const STATS = ["hp", "atk", "def", "spa", "spd", "spe"] as const;
 

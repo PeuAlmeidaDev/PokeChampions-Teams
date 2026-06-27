@@ -47,6 +47,7 @@ export function makeDetailedPokemon(
   return {
     species: "Incineroar",
     spriteUrl: "https://img/incineroar.png",
+    itemSpriteUrl: "https://img/assault-vest.png",
     item: "Assault Vest",
     ability: "Intimidate",
     nature: "Careful",

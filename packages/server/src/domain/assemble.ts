@@ -50,12 +50,14 @@ export function assembleTeamDetail(
   id: string,
   sets: ParsedSet[],
   sprites: Map<string, ResolvedSprite>,
+  itemSprites: Map<string, string>,
 ): TeamDetail {
   return {
     id,
     pokemon: sets.map((set) => ({
       ...set,
       spriteUrl: sprites.get(set.species)?.spriteUrl ?? PLACEHOLDER_SPRITE_URL,
+      itemSpriteUrl: set.item ? (itemSprites.get(set.item) ?? null) : null,
     })),
   };
 }

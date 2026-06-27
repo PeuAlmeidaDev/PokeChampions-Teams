@@ -61,7 +61,7 @@ describe("App", () => {
     const detail = {
       id: "MB1",
       pokemon: [
-        { species: "Incineroar", spriteUrl: "x", item: "Assault Vest", ability: "Intimidate", nature: "Careful", teraType: "Grass", evs: { hp: 252 }, ivs: {}, moves: ["Fake Out"] },
+        { species: "Incineroar", spriteUrl: "x", itemSpriteUrl: null, item: "Assault Vest", ability: "Intimidate", nature: "Careful", teraType: "Grass", evs: { hp: 252 }, ivs: {}, moves: ["Fake Out"] },
       ],
     };
     vi.stubGlobal(

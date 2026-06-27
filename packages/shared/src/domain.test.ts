@@ -28,6 +28,7 @@ describe("DetailedPokemonSetSchema", () => {
     const set = {
       species: "Incineroar",
       spriteUrl: "https://img/incineroar.png",
+      itemSpriteUrl: "https://img/assault-vest.png",
       item: "Assault Vest",
       ability: "Intimidate",
       nature: "Careful",
@@ -43,6 +44,7 @@ describe("DetailedPokemonSetSchema", () => {
     const set = {
       species: "Flutter Mane",
       spriteUrl: "/placeholder-sprite.png",
+      itemSpriteUrl: null,
       item: null,
       ability: null,
       nature: null,
@@ -63,6 +65,7 @@ describe("TeamDetailSchema", () => {
         {
           species: "Incineroar",
           spriteUrl: "x",
+          itemSpriteUrl: null,
           item: null,
           ability: null,
           nature: null,

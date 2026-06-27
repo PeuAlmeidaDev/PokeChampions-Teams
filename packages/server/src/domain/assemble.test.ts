@@ -76,14 +76,28 @@ describe("assembleTeamDetail", () => {
 
   it("junta o sprite resolvido por espécie", () => {
     const sprites = new Map([["Incineroar", { spriteUrl: "https://img/inc.png", dexId: 727 }]]);
-    const detail = assembleTeamDetail("MB1", [set], sprites);
+    const detail = assembleTeamDetail("MB1", [set], sprites, new Map());
     expect(detail.id).toBe("MB1");
     expect(detail.pokemon[0]?.spriteUrl).toBe("https://img/inc.png");
     expect(detail.pokemon[0]?.item).toBe("Assault Vest");
   });
 
   it("espécie sem sprite degrada para o placeholder", () => {
-    const detail = assembleTeamDetail("MB1", [set], new Map());
+    const detail = assembleTeamDetail("MB1", [set], new Map(), new Map());
     expect(detail.pokemon[0]?.spriteUrl).toBe("/placeholder-sprite.png");
+  });
+
+  it("maps each item to its resolved item-sprite url, null when absent or unmapped", () => {
+    const sets: ParsedSet[] = [
+      { species: "Incineroar", item: "Assault Vest", ability: null, nature: null, teraType: null, evs: {}, ivs: {}, moves: [] },
+      { species: "Flutter Mane", item: "Booster Energy", ability: null, nature: null, teraType: null, evs: {}, ivs: {}, moves: [] },
+      { species: "Ditto", item: null, ability: null, nature: null, teraType: null, evs: {}, ivs: {}, moves: [] },
+    ];
+    const itemSprites = new Map([["Assault Vest", "https://img/assault-vest.png"]]);
+    const detail = assembleTeamDetail("MB1", sets, new Map(), itemSprites);
+
+    expect(detail.pokemon[0]?.itemSpriteUrl).toBe("https://img/assault-vest.png"); // resolved
+    expect(detail.pokemon[1]?.itemSpriteUrl).toBeNull(); // item present but not in the map
+    expect(detail.pokemon[2]?.itemSpriteUrl).toBeNull(); // no item at all
   });
 });

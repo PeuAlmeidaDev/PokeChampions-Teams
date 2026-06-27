@@ -8,7 +8,7 @@ import type { TeamDetail } from "@pokemon-champions/shared";
 const detail: TeamDetail = {
   id: "MB1",
   pokemon: [
-    { species: "Pikachu", spriteUrl: "x", item: null, ability: null, nature: null, teraType: null, evs: {}, ivs: {}, moves: [] },
+    { species: "Pikachu", spriteUrl: "x", itemSpriteUrl: null, item: null, ability: null, nature: null, teraType: null, evs: {}, ivs: {}, moves: [] },
   ],
 };
 

@@ -52,7 +52,7 @@ export function createTeamDetailService(
     const merged = new Map([...spriteCache, ...fresh]);
     if (missing.length > 0) await deps.writeSpriteCache(merged);
 
-    const detail = assembleTeamDetail(id, sets, merged);
+    const detail = assembleTeamDetail(id, sets, merged, new Map());
     if (detail.pokemon.length > 0) {
       await deps.writeDetailCache(id, detail);
     }

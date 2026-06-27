@@ -59,6 +59,8 @@ export type TeamsResponse = z.infer<typeof TeamsResponseSchema>;
 export const DetailedPokemonSetSchema = z.object({
   species: z.string(),
   spriteUrl: z.string(),
+  /** Resolved PokeAPI item-sprite URL, or null when the Pokémon holds no item or the item could not be mapped. */
+  itemSpriteUrl: z.string().nullable(),
   item: z.string().nullable(),
   ability: z.string().nullable(),
   nature: z.string().nullable(),
