@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type JSX } from "react";
+import { useCallback, useEffect, useRef, useState, type JSX } from "react";
 import type { Team, TeamDetail } from "@pokemon-champions/shared";
 import { fetchTeams, fetchTeamDetail } from "./api/client.js";
 import { TeamGrid } from "./components/TeamGrid.js";
@@ -21,6 +21,8 @@ export function App(): JSX.Element {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<TeamDetail | null>(null);
   const [detailStatus, setDetailStatus] = useState<Status>("loading");
+
+  const detailSeqRef = useRef(0);
 
   const load = useCallback(() => {
     let active = true;
@@ -45,27 +47,25 @@ export function App(): JSX.Element {
   useEffect(() => load(), [load]);
 
   const openDetail = useCallback((id: string) => {
-    let active = true;
+    const seq = ++detailSeqRef.current;
     setSelectedId(id);
     setDetail(null);
     setDetailStatus("loading");
     fetchTeamDetail(id)
       .then((d) => {
-        if (!active) return;
+        if (seq !== detailSeqRef.current) return;
         setDetail(d);
         setDetailStatus("ready");
       })
       .catch((err: unknown) => {
-        if (!active) return;
+        if (seq !== detailSeqRef.current) return;
         console.error("Failed to load team detail", err);
         setDetailStatus("error");
       });
-    return () => {
-      active = false;
-    };
   }, []);
 
   const closeDetail = useCallback(() => {
+    detailSeqRef.current++;
     setSelectedId(null);
     setDetail(null);
     setDetailStatus("loading");
